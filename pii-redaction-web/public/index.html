@@ -19,7 +19,7 @@ pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;white-space:
 </style>
 </head>
 <body>
-<h1>🔒 PII Redaction Tool</h1>
+<h1>PII Redaction Tool</h1>
 <p>JS version — Handles 9 PII types: Names, Email, Phone, Company, Address, SSN, Credit Card, DOB, IP — with consistent fake mapping</p>
 <div id="status" class="alert alert-info">Checking server health...</div>
 
@@ -43,7 +43,6 @@ Order ORDER-12345 should NOT be redacted</textarea>
 
 <div class="card">
 <h3>Upload File (.txt / .docx) - Free Tier Limit 1MB</h3>
-<p style="font-size:12px;color:#fbbf24">⚠️ Render free tier: 512MB RAM / 256MB heap. RHP docx is 1.8MB/366k chars → will OOM and crash with 500/502. Use synthetic_pii.txt (1.7KB) for demo - works instantly. For full RHP, run CLI locally: <code>node src/redactor.js --input original.txt --output redacted.docx</code></p>
 <input type="file" id="file" accept=".txt,.docx">
 <button onclick="uploadFile()">Redact File → Download docx</button>
 <div id="fileStatus"></div>
@@ -63,10 +62,10 @@ async function checkHealth(){
     const res = await fetch('/api/health');
     const data = await res.json();
     document.getElementById('health').textContent = JSON.stringify(data);
-    document.getElementById('status').innerHTML = `✅ Server OK - ${data.memory || 'optimized'} - Max file: ${data.maxFile || '1MB'} - Use synthetic_pii.txt (1.7KB) for instant demo, not RHP 1.8MB`;
+    document.getElementById('status').innerHTML = `Server OK - ${data.memory || 'optimized'} - Max file: ${data.maxFile || '1MB'} - Use synthetic_pii.txt (1.7KB) for instant demo, not RHP 1.8MB`;
     document.getElementById('status').className = 'alert alert-info';
   }catch(e){
-    document.getElementById('status').innerHTML = `❌ Server error: ${e.message}. If you see 502/500 on RHP 1.8MB file, it's expected - free tier OOM. Use synthetic 1.7KB.`;
+    document.getElementById('status').innerHTML = `Server error: ${e.message}. If you see 502/500 on RHP 1.8MB file, it's expected - free tier OOM. Use synthetic 1.7KB.`;
     document.getElementById('status').className = 'alert alert-error';
   }
 }
