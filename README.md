@@ -20,7 +20,6 @@ Final demo: `synthetic_pii.txt` (1727 chars) -> `redacted_synthetic.docx` (8.3KB
 ## Input Files
 
 - `data/input/synthetic_pii.txt` - MAIN DEMO, all 9 types, clear verification
-- `data/input/test_input.docx` - docx input demo, proves docx direct support
 - `data/input/Red_Herring_Prospectus.docx` - original RHP kept as backup, not run for final demo
 - Web version also accepts upload via UI.
 
@@ -57,15 +56,11 @@ npm install
 # Synthetic demo (all 9 types, recommended for clear view)
 node src/redactor.js --input data/input/synthetic_pii.txt --output redacted_output.docx
 
-# Docx direct (NEW - supports docx input)
-node src/redactor.js --input data/input/test_input.docx --output redacted_output.docx
-
 # Real RHP (kept as backup, not used for final)
-node src/redactor.js --input data/input/original.txt --output data/output/redacted_real.docx
+node src/redactor.js --input data/input/Red_Herring_Prospectus.docx --output data/output/redacted_real.docx
 
 # Test & Evaluate
-node src/test.js
-node src/evaluate_minimal.js
+node src/evaluate.js
 ```
 
 Outputs: docx (required) + redacted.txt + replacements.json (audit, proves consistent mapping).
