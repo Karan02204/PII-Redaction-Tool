@@ -1,94 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PII Redaction Tool - JS</title>
-<style>
-body{font-family:Inter,system-ui;background:#0f172a;color:#e2e8f0;max-width:900px;margin:0 auto;padding:20px}
-h1{color:#38bdf8}
-.card{background:#1e293b;padding:20px;border-radius:12px;margin:20px 0;border:1px solid #334155}
-textarea{width:100%;height:150px;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:12px}
-button{background:#38bdf8;color:#0f172a;border:0;padding:12px 24px;border-radius:8px;font-weight:700;cursor:pointer;margin:5px}
-button:hover{background:#0ea5e9}
-pre{background:#0f172a;padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap;max-height:400px}
-.badge{display:inline-block;background:#334155;padding:4px 8px;border-radius:6px;margin:2px;font-size:12px}
-.alert{padding:12px;border-radius:8px;margin:10px 0}
-.alert-error{background:#7f1d1d;border:1px solid #ef4444;color:#fecaca}
-.alert-info{background:#1e3a8a;border:1px solid #3b82f6;color:#bfdbfe}
-</style>
-</head>
-<body>
-<h1>PII Redaction Tool</h1>
-<p>JS version — Handles 9 PII types: Names, Email, Phone, Company, Address, SSN, Credit Card, DOB, IP — with consistent fake mapping</p>
-<div id="status" class="alert alert-info">Checking server health...</div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PII Redaction Tool - JS</title>
+    <style>
+      body {
+        font-family: Inter, system-ui;
+        background: #0f172a;
+        color: #e2e8f0;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #38bdf8;
+      }
+      .card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 1px solid #334155;
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        background: #0f172a;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 12px;
+      }
+      button {
+        background: #38bdf8;
+        color: #0f172a;
+        border: 0;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0ea5e9;
+      }
+      pre {
+        background: #0f172a;
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+        white-space: pre-wrap;
+        max-height: 400px;
+      }
+      .badge {
+        display: inline-block;
+        background: #334155;
+        padding: 4px 8px;
+        border-radius: 6px;
+        margin: 2px;
+        font-size: 12px;
+      }
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+      .alert-error {
+        background: #7f1d1d;
+        border: 1px solid #ef4444;
+        color: #fecaca;
+      }
+      .alert-info {
+        background: #1e3a8a;
+        border: 1px solid #3b82f6;
+        color: #bfdbfe;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PII Redaction Tool</h1>
+    <p>
+      JS version — Handles 9 PII types: Names, Email, Phone, Company, Address,
+      SSN, Credit Card, DOB, IP — with consistent fake mapping
+    </p>
+    <div id="status" class="alert alert-info">Checking server health...</div>
 
-<div class="card">
-<h3>Test with Text</h3>
-<textarea id="input" placeholder="Paste text with PII...">Contact: Rashi Patil, Email: rashhi.patil@gmail.com, Phone: +91 9876543210
+    <div class="card">
+      <h3>Test with Text</h3>
+      <textarea id="input" placeholder="Paste text with PII...">
+Contact: Rashi Patil, Email: rashhi.patil@gmail.com, Phone: +91 9876543210
 Company: KSH International Limited
 Address: 11/3 Village Birdewadi, Pune 410501
 SSN: 123-45-6789
 Credit Card: 4111-1111-1111-1111
 IP: 192.168.1.10
 DOB: Date of Birth: 15/08/1990
-Order ORDER-12345 should NOT be redacted</textarea>
-<br>
-<button onclick="redact()">Redact Text</button>
-<button onclick="loadSynthetic()">Load Synthetic Demo (9 types)</button>
-<button onclick="loadSmall()">Load Small Test</button>
-<pre id="output">Output will appear here...</pre>
-<div id="report"></div>
-</div>
+Order ORDER-12345 should NOT be redacted</textarea
+      >
+      <br />
+      <button onclick="redact()">Redact Text</button>
+      <button onclick="loadSynthetic()">Load Synthetic Demo (9 types)</button>
+      <button onclick="loadSmall()">Load Small Test</button>
+      <pre id="output">Output will appear here...</pre>
+      <div id="report"></div>
+    </div>
 
-<div class="card">
-<h3>Upload File (.txt / .docx) - Free Tier Limit 1MB</h3>
-<input type="file" id="file" accept=".txt,.docx">
-<button onclick="uploadFile()">Redact File → Download docx</button>
-<div id="fileStatus"></div>
-<p style="font-size:12px;color:#94a3b8">Supports txt and docx directly (uses mammoth for docx). Output is redacted.docx. Max file size 1MB on free tier to prevent crash.</p>
-</div>
+    <div class="card">
+      <h3>Upload File (.txt / .docx) - Free Tier Limit 1MB</h3>
+      <input type="file" id="file" accept=".txt,.docx" />
+      <button onclick="uploadFile()">Redact File → Download docx</button>
+      <div id="fileStatus"></div>
+      <p style="font-size: 12px; color: #94a3b8">
+        Supports txt and docx directly (uses mammoth for docx). Output is
+        redacted.docx. Max file size 1MB on free tier to prevent crash.
+      </p>
+    </div>
 
-<div class="card">
-<h3>API</h3>
-<p><code>POST /api/redact</code> with <code>{text: "..."}</code> - limit 50k chars on free tier</p>
-<p><code>POST /api/redact-file</code> with multipart file - limit 1MB on free tier</p>
-<p>Health: <code>/api/health</code> - <span id="health"></span></p>
-</div>
+    <div class="card">
+      <h3>API</h3>
+      <p>
+        <code>POST /api/redact</code> with <code>{text: "..."}</code> - limit
+        50k chars on free tier
+      </p>
+      <p>
+        <code>POST /api/redact-file</code> with multipart file - limit 1MB on
+        free tier
+      </p>
+      <p>Health: <code>/api/health</code> - <span id="health"></span></p>
+    </div>
 
-<script>
-async function checkHealth(){
-  try{
-    const res = await fetch('/api/health');
-    const data = await res.json();
-    document.getElementById('health').textContent = JSON.stringify(data);
-    document.getElementById('status').innerHTML = `Server OK - ${data.memory || 'optimized'} - Max file: ${data.maxFile || '1MB'} - Use synthetic_pii.txt (1.7KB) for instant demo, not RHP 1.8MB`;
-    document.getElementById('status').className = 'alert alert-info';
-  }catch(e){
-    document.getElementById('status').innerHTML = `Server error: ${e.message}. If you see 502/500 on RHP 1.8MB file, it's expected - free tier OOM. Use synthetic 1.7KB.`;
-    document.getElementById('status').className = 'alert alert-error';
-  }
-}
-checkHealth();
+    <script>
+      async function checkHealth() {
+        try {
+          const res = await fetch("/api/health");
+          const data = await res.json();
+          document.getElementById("health").textContent = JSON.stringify(data);
+          document.getElementById("status").innerHTML =
+            `Server OK - ${data.memory || "optimized"} - Max file: ${data.maxFile || "1MB"} - Use synthetic_pii.txt (1.7KB) for instant demo, not RHP 1.8MB`;
+          document.getElementById("status").className = "alert alert-info";
+        } catch (e) {
+          document.getElementById("status").innerHTML =
+            `Server error: ${e.message}. If you see 502/500 on RHP 1.8MB file, it's expected - free tier OOM. Use synthetic 1.7KB.`;
+          document.getElementById("status").className = "alert alert-error";
+        }
+      }
+      checkHealth();
 
-async function redact(){
-  const text = document.getElementById('input').value;
-  document.getElementById('output').textContent = 'Redacting...';
-  try{
-    const res = await fetch('/api/redact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    const data = await res.json();
-    if(!res.ok){
-      document.getElementById('output').textContent = `Error ${res.status}: ${data.error || 'Unknown'}`;
-      return;
-    }
-    document.getElementById('output').textContent = data.redactedText;
-    document.getElementById('report').innerHTML = `<br><b>Report:</b> Total ${data.report.total}<br>` + Object.entries(data.report.byType).map(([k,v])=>`<span class="badge">${k}: ${v}</span>`).join('') + `<br><br><b>Sample Replacements:</b><pre>${JSON.stringify(data.replacements.slice(0,10),null,2)}</pre>`;
-  }catch(e){
-    document.getElementById('output').textContent = 'Error: ' + e.message;
-  }
-}
-function loadSynthetic(){
-  document.getElementById('input').value = `PII Redaction - Synthetic Test File - Contains all 9 required types
+      async function redact() {
+        const text = document.getElementById("input").value;
+        document.getElementById("output").textContent = "Redacting...";
+        try {
+          const res = await fetch("/api/redact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            document.getElementById("output").textContent =
+              `Error ${res.status}: ${data.error || "Unknown"}`;
+            return;
+          }
+          document.getElementById("output").textContent = data.redactedText;
+          document.getElementById("report").innerHTML =
+            `<br><b>Report:</b> Total ${data.report.total}<br>` +
+            Object.entries(data.report.byType)
+              .map(([k, v]) => `<span class="badge">${k}: ${v}</span>`)
+              .join("") +
+            `<br><br><b>Sample Replacements:</b><pre>${JSON.stringify(data.replacements.slice(0, 10), null, 2)}</pre>`;
+        } catch (e) {
+          document.getElementById("output").textContent = "Error: " + e.message;
+        }
+      }
+      function loadSynthetic() {
+        document.getElementById("input").value =
+          `PII Redaction - Synthetic Test File - Contains all 9 required types
 Rashi Patil: John Doe
 rashhi.patil@gmail.com: john.doe@example.com
 +91 9876543210: +91 1234567645
@@ -100,73 +187,123 @@ IP: 192.168.1.10
 DOB: Date of Birth: 15/08/1990
 Generic date NOT DOB: Dated December 10, 2025
 ORDER-12345 should NOT be redacted`;
-}
-function loadSmall(){
-  document.getElementById('input').value = `Contact: Rashi Patil rashhi.patil@gmail.com +91 9876543210`;
-}
+      }
+      function loadSmall() {
+        document.getElementById("input").value =
+          `Contact: Rashi Patil rashhi.patil@gmail.com +91 9876543210`;
+      }
 
-async function uploadFile(){
-  const fileInput = document.getElementById('file');
-  const statusDiv = document.getElementById('fileStatus');
-  if (!fileInput.files[0]) { alert('Select file first'); return; }
-  
-  const file = fileInput.files[0];
-  if (file.size > 1*1024*1024) {
-    statusDiv.innerHTML = `<div class="alert alert-error">❌ File too large: ${(file.size/1024/1024).toFixed(2)}MB > 1MB limit for free tier. Your RHP is 1.8MB/366k chars and will cause OOM 500/502 crash (as you saw). For demo, use synthetic_pii.txt (1.7KB, all 9 types, works instantly). For full RHP, run CLI locally: <code>node src/redactor.js --input original.txt --output redacted.docx</code></div>`;
-    return;
-  }
+      async function uploadFile() {
+        const fileInput = document.getElementById("file");
+        const statusDiv = document.getElementById("fileStatus");
+        if (!fileInput.files[0]) {
+          alert("Select file first");
+          return;
+        }
 
-  statusDiv.innerHTML = `<div class="alert alert-info">⏳ Uploading ${file.name} (${(file.size/1024).toFixed(1)}KB)...</div>`;
-  
-  const form = new FormData();
-  form.append('file', file);
-  
-  try {
-    const res = await fetch('/api/redact-file',{method:'POST',body:form});
-    
-    // Check if response is JSON error or docx blob
-    const contentType = res.headers.get('Content-Type') || '';
-    
-    if (!res.ok) {
-      // Try to parse as JSON error, but handle HTML error page (which caused your <!DOCTYPE bug)
-      let errorMsg = `HTTP ${res.status}`;
-      try {
-        if (contentType.includes('application/json')) {
-          const err = await res.json();
-          errorMsg = err.error || JSON.stringify(err);
-        } else {
-          // Server returned HTML error page (e.g., Render 502 crash page) - this was your <!DOCTYPE bug
-          const text = await res.text();
-          if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-            errorMsg = `Server crashed (returned HTML not JSON). This happens with large files like RHP 1.8MB on free tier (OOM). Your log showed "FATAL ERROR: heap out of memory". Use synthetic_pii.txt (1.7KB) for demo. Original error was 500/502 Bad Gateway.`;
+        const file = fileInput.files[0];
+        if (file.size > 1 * 1024 * 1024) {
+          statusDiv.innerHTML = `<div class="alert alert-error"> File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB > 1MB limit for free tier.`;
+          return;
+        }
+
+        statusDiv.innerHTML = `<div class="alert alert-info"> Uploading ${file.name} (${(file.size / 1024).toFixed(1)}KB)...</div>`;
+
+        const form = new FormData();
+        form.append("file", file);
+
+        try {
+          const res = await fetch("/api/redact-file", {
+            method: "POST",
+            body: form,
+          });
+
+          // Check if response is JSON error or docx blob
+          const contentType = res.headers.get("Content-Type") || "";
+
+          if (!res.ok) {
+            // Try to parse as JSON error, but handle HTML error page (which caused your <!DOCTYPE bug)
+            let errorMsg = `HTTP ${res.status}`;
+            try {
+              if (contentType.includes("application/json")) {
+                const err = await res.json();
+                errorMsg = err.error || JSON.stringify(err);
+              } else {
+                // Server returned HTML error page (e.g., Render 502 crash page) - this was your <!DOCTYPE bug
+                const text = await res.text();
+                if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                  errorMsg = `Server crashed (returned HTML not JSON). This happens with large files like RHP 1.8MB on free tier (OOM). Your log showed "FATAL ERROR: heap out of memory". Use synthetic_pii.txt (1.7KB) for demo. Original error was 500/502 Bad Gateway.`;
+                } else {
+                  errorMsg = text.slice(0, 500);
+                }
+              }
+            } catch (parseErr) {
+              errorMsg = `Failed to parse error response: ${parseErr.message}. Status: ${res.status} - Likely server crashed on large file.`;
+            }
+            statusDiv.innerHTML = `<div class="alert alert-error"> Error ${res.status}: ${errorMsg}</div>`;
+            return;
+          }
+
+          // Success - should be docx blob
+          if (
+            contentType.includes(
+              "application/vnd.openxmlformats-officedocument.wordprocessingml",
+            ) ||
+            contentType.includes("application/octet-stream")
+          ) {
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "redacted.docx";
+            a.click();
+            statusDiv.innerHTML = `<div class="alert alert-info"> Success! Downloaded redacted.docx (${(blob.size / 1024).toFixed(1)}KB)</div>`;
           } else {
-            errorMsg = text.slice(0,500);
+            // Unexpected content type
+            const text = await res.text();
+            statusDiv.innerHTML = `<div class="alert alert-error"> Unexpected response type: ${contentType}<br><pre>${text.slice(0, 500)}</pre></div>`;
+          }
+        } catch (e) {
+          console.error("Upload error:", e);
+          statusDiv.innerHTML = `<div class="alert alert-error"> Network/Unexpected error: ${e.message}<br>If you uploaded RHP 1.8MB, it's OOM on free tier - use synthetic 1.7KB instead.</div>`;
+        }
+      }
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b =
+            a.contentDocument || (a.contentWindow && a.contentWindow.document);
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'a2b093e56fea4723',t:'MTc4NjcxNjk5MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
           }
         }
-      } catch (parseErr) {
-        errorMsg = `Failed to parse error response: ${parseErr.message}. Status: ${res.status} - Likely server crashed on large file.`;
-      }
-      statusDiv.innerHTML = `<div class="alert alert-error">❌ Error ${res.status}: ${errorMsg}</div>`;
-      return;
-    }
-    
-    // Success - should be docx blob
-    if (contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml') || contentType.includes('application/octet-stream')) {
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'redacted.docx'; a.click();
-      statusDiv.innerHTML = `<div class="alert alert-info">✅ Success! Downloaded redacted.docx (${(blob.size/1024).toFixed(1)}KB)</div>`;
-    } else {
-      // Unexpected content type
-      const text = await res.text();
-      statusDiv.innerHTML = `<div class="alert alert-error">❌ Unexpected response type: ${contentType}<br><pre>${text.slice(0,500)}</pre></div>`;
-    }
-  } catch (e) {
-    console.error('Upload error:', e);
-    statusDiv.innerHTML = `<div class="alert alert-error">❌ Network/Unexpected error: ${e.message}<br>If you uploaded RHP 1.8MB, it's OOM on free tier - use synthetic 1.7KB instead.</div>`;
-  }
-}
-</script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b093e56fea4723',t:'MTc4NjcxNjk5MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
+      })();
+    </script>
+  </body>
 </html>
