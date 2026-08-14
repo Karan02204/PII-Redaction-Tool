@@ -1,5 +1,7 @@
 # PII Redaction Tool - JavaScript
 
+# Deployed URL: https://pii-redaction-tool-y8fk.onrender.com/
+
 ## Overview
 CLI + Web tool that redacts 9 PII types with consistent fake mapping (not [REDACTED]).
 
@@ -176,8 +178,6 @@ PII-REDACTION-TOOL/
   package.json
   package-lock.json
   README.md
-
-Deployed URL: https://pii-redaction-tool-y8fk.onrender.com/
 ```
 
 ## Submission Checklist
