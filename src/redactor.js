@@ -76,16 +76,14 @@ function luhnCheck(s) {
   return sum % 10 === 0;
 }
 
-function parseArgs(){
-    const a = process.argv.slice(2);
-    const r = {};
-    for(let i=0;i<a.length;i++){
-        if(a[i] === '--input'){
-            r.input = a[i+1];
-        }
-    }
-
-    return r;
+function parseArgs() {
+  const a = process.argv.slice(2);
+  const r = {};
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === "--input") r.input = a[i + 1];
+    if (a[i] === "--output") r.output = a[i + 1];
+  }
+  return r;
 }
 
 async function main(){
