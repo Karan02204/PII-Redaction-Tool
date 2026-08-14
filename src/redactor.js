@@ -551,6 +551,16 @@ function parseArgs() {
   return r;
 }
 
+async function readInputFile(inPath) {
+  if (inPath.toLowerCase().endsWith(".docx")) {
+    const mammoth = await import("mammoth");
+    const result = await mammoth.extractRawText({ path: inPath });
+    return result.value;
+  } else {
+    return fs.readFileSync(inPath, "utf-8");
+  }
+}
+
 async function main() {
   const { input, output } = parseArgs();
   const inPath = input;
@@ -560,7 +570,7 @@ async function main() {
     process.exit(1);
   }
 
-  const orig = fs.readFileSync(inPath, "utf-8");
+  const orig = await readInputFile(inPath);
   console.log(`Input ${orig.length} chars`);
 
   const {redactedText , report , replacements } = readactText(orig);
