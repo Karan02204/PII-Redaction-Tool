@@ -21,32 +21,91 @@ const CACHE = {
 
 function getFake(map, original, gen) {
   const key = original.trim();
-  if (!key) return original;
-  if (map.has(key)) return map.get(key);
-  const fake = gen();
+  if (map.has(key)) {
+    const cached = map.get(key);
+    if (cached) return cached; // ignore undefined cache
+  }
+  let fake;
+  try {
+    fake = gen();
+  } catch {
+    fake = null;
+  }
+  // Fallback ensures never undefined
+  if (!fake) {
+    if (map === CACHE.emails) fake = `user${random}@example.com`;
+    else fake = `REDACTED_${map.size + 1}`;
+  }
   map.set(key, fake);
   return fake;
 }
 
 const fakeGen = {
-  name: () => faker.person.fullName(),
-  email: () => faker.internet.email().toLowerCase(),
-  phone: (orig) =>
-    orig.includes("91")
-      ? `+91 ${faker.string.numeric(2)} ${faker.string.numeric(4)} ${faker.string.numeric(4)}`
-      : faker.string.numeric(10),
-  company: () =>
-    `${faker.company.name()} ${faker.helpers.arrayElement(["Limited", "Private Limited", "LLP", "Management Limited"])}`,
-  address: () =>
-    `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()} - ${faker.location.zipCode("######")}, India`,
-  ssn: () =>
-    `${faker.string.numeric(3)}-${faker.string.numeric(2)}-${faker.string.numeric(4)}`,
-  creditCard: () => faker.finance.creditCardNumber("####-####-####-####"),
-  dob: () =>
-    faker.date
-      .birthdate({ min: 25, max: 65, mode: "age" })
-      .toLocaleDateString("en-GB"),
-  ip: () => faker.internet.ipv4(),
+  name: () => faker.person.fullName() || "John Doe",
+  email: () => {
+    try {
+      const e = faker.internet.email();
+      return (
+        (e && e.toLowerCase()) ||
+        `user${Math.floor(Math.random() * 10000)}@example.com`
+      );
+    } catch {
+      return `user${Math.floor(Math.random() * 10000)}@example.com`;
+    }
+  },
+  phone: (orig) => {
+    try {
+      return orig.includes("91")
+        ? `+91 ${faker.string.numeric(2)} ${faker.string.numeric(4)} ${faker.string.numeric(4)}`
+        : faker.string.numeric(10);
+    } catch {
+      return "+91 1234567890";
+    }
+  },
+  company: () => {
+    try {
+      return `${faker.company.name()} ${faker.helpers.arrayElement(["Limited", "Private Limited", "LLP", "Management Limited"])}`;
+    } catch {
+      return "Acme Private Limited";
+    }
+  },
+  address: () => {
+    try {
+      return `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()} - ${faker.location.zipCode("######")}, India`;
+    } catch {
+      return "123 Main Street, Mumbai - 400001, India";
+    }
+  },
+  ssn: () => {
+    try {
+      return `${faker.string.numeric(3)}-${faker.string.numeric(2)}-${faker.string.numeric(4)}`;
+    } catch {
+      return "123-45-6789";
+    }
+  },
+  creditCard: () => {
+    try {
+      return faker.finance.creditCardNumber("####-####-####-####");
+    } catch {
+      return "4111-1111-1111-1111";
+    }
+  },
+  dob: () => {
+    try {
+      return faker.date
+        .birthdate({ min: 25, max: 65, mode: "age" })
+        .toLocaleDateString("en-GB");
+    } catch {
+      return "01/01/1990";
+    }
+  },
+  ip: () => {
+    try {
+      return faker.internet.ipv4();
+    } catch {
+      return "192.168.1.1";
+    }
+  },
 };
 
 // ====== PATTERNS ======
@@ -405,6 +464,7 @@ function readactText(original) {
   text = text.replace(PATTERNS.email, (m) => {
     const f = getFake(CACHE.emails, m, fakeGen.email);
     repl.push({ type: "EMAIL", original: m, fake: f });
+    return f;
   });
 
   // 2 IP

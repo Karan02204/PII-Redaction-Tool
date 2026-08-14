@@ -2,146 +2,146 @@
   {
     "type": "EMAIL",
     "original": "rashhi.patil@gmail.com",
-    "fake": "reina75@hotmail.com"
+    "fake": "shawn42@gmail.com"
   },
   {
     "type": "EMAIL",
     "original": "john.doe@example.com",
-    "fake": "carlotta.nader88@hotmail.com"
+    "fake": "chelsea_kihn-reilly32@hotmail.com"
   },
   {
     "type": "EMAIL",
     "original": "rohan.dey@gmail.com",
-    "fake": "terrence.hayes13@gmail.com"
+    "fake": "eda.robel43@yahoo.com"
   },
   {
     "type": "EMAIL",
     "original": "peter.parker@example.com",
-    "fake": "kenny_oconner@hotmail.com"
+    "fake": "larry.stracke@gmail.com"
   },
   {
     "type": "EMAIL",
     "original": "rashhi.patil@gmail.com",
-    "fake": "reina75@hotmail.com"
+    "fake": "shawn42@gmail.com"
   },
   {
     "type": "EMAIL",
     "original": "sarthak.malvadkar@kshinternational.com",
-    "fake": "maxime.stroman@hotmail.com"
+    "fake": "brock.towne@hotmail.com"
   },
   {
     "type": "EMAIL",
     "original": "ksh.ipo@nuvama.com",
-    "fake": "mazie_huels@gmail.com"
+    "fake": "jonathan45@hotmail.com"
   },
   {
     "type": "EMAIL",
     "original": "customerservice.mb@nuvama.com",
-    "fake": "hugo.muller@hotmail.com"
+    "fake": "erica94@gmail.com"
   },
   {
     "type": "IP_ADDRESS",
     "original": "192.168.1.10",
-    "fake": "11.220.170.101"
+    "fake": "124.233.167.49"
   },
   {
     "type": "IP_ADDRESS",
     "original": "10.0.0.1",
-    "fake": "132.45.30.52"
+    "fake": "181.35.111.153"
   },
   {
     "type": "IP_ADDRESS",
     "original": "172.16.0.5",
-    "fake": "184.33.95.246"
+    "fake": "110.140.101.63"
   },
   {
     "type": "IP_ADDRESS",
     "original": "8.8.8.8",
-    "fake": "185.90.114.131"
+    "fake": "74.63.134.122"
   },
   {
     "type": "SSN",
     "original": "123-45-6789",
-    "fake": "458-80-1155"
+    "fake": "747-07-2098"
   },
   {
     "type": "SSN",
     "original": "987-65-4321",
-    "fake": "436-36-8475"
+    "fake": "169-48-7802"
   },
   {
     "type": "CREDIT_CARD",
     "original": "4111-1111-1111-1111",
-    "fake": "3291-3176-4948-4912"
+    "fake": "8733-7540-5715-0903"
   },
   {
     "type": "CREDIT_CARD",
     "original": "5500-0000-0000-0004",
-    "fake": "3749-0715-8126-9368"
+    "fake": "1612-5219-4973-2110"
   },
   {
     "type": "PHONE",
     "original": "+91 9876543210",
-    "fake": "+91 48 8096 7973"
+    "fake": "+91 66 2165 6110"
   },
   {
     "type": "PHONE",
     "original": "+91 1234567645",
-    "fake": "+91 50 1430 5709"
+    "fake": "+91 44 6989 3961"
   },
   {
     "type": "PHONE",
     "original": "+91 9876543210",
-    "fake": "+91 48 8096 7973"
+    "fake": "+91 66 2165 6110"
   },
   {
     "type": "PHONE",
     "original": "+91 98765 43210",
-    "fake": "+91 84 4520 4092"
+    "fake": "+91 11 3956 5691"
   },
   {
     "type": "DOB",
     "original": "Date of Birth: Date of Birth: 15/08/1990",
-    "fake": "07/05/1967"
+    "fake": "17/04/1978"
   },
   {
     "type": "DOB",
     "original": "DOB: 22-11-1985",
-    "fake": "13/01/1999"
+    "fake": "22/10/1990"
   },
   {
     "type": "COMPANY",
     "original": "Nuvama Wealth Management Limited",
-    "fake": "O'Connell Group LLP"
+    "fake": "Torp, Bergstrom and Oberbrunner LLP"
   },
   {
     "type": "COMPANY",
     "original": "ICICI Securities Limited",
-    "fake": "Koelpin and Sons Private Limited"
+    "fake": "Witting LLC LLP"
   },
   {
     "type": "ADDRESS",
     "original": "Address: 11/3, 11/4 and 11/5 Village Birdewadi, Chakan Taluka - Khed Pune – 410 ",
-    "fake": "8849 Kariane Stravenue, Sheilaworth, Missouri - 761078, India"
+    "fake": "948 Woodside, Urbana, Minnesota - 985708, India"
   },
   {
     "type": "ADDRESS",
     "original": "Office: 201, Tower 2, Montreal Business Centre, Off Pallod Farms, Baner Pune – 4",
-    "fake": "12078 Beatrice Wells, Bradhaven, Colorado - 489661, India"
+    "fake": "90623 Lake Drive, Nienowshire, Georgia - 828857, India"
   },
   {
     "type": "PERSON",
     "original": "Rohan Dey: Peter Parker",
-    "fake": "Clinton Oberbrunner"
+    "fake": "Geraldine Price Jr."
   },
   {
     "type": "PERSON",
     "original": "Rajesh Kushal Hegde",
-    "fake": "Leslie Gibson"
+    "fake": "Laurine Zemlak"
   },
   {
     "type": "PERSON",
     "original": "John Doe",
-    "fake": "Leona Conroy"
+    "fake": "Julia Kemmer"
   }
 ]

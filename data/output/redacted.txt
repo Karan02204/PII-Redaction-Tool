@@ -2,25 +2,25 @@ PII Redaction - Synthetic Test File - Contains all 9 required types
 This file is used to prove coverage for types not present in real RHP
 
 Example from assignment:
-Rashi Patil: Leona Conroy should become fake
-undefined: undefined
-Clinton Oberbrunner
-undefined: undefined
-+91 48 8096 7973: +91 50 1430 5709
+Rashi Patil: Julia Kemmer should become fake
+shawn42@gmail.com: chelsea_kihn-reilly32@hotmail.com
+Geraldine Price Jr.
+eda.robel43@yahoo.com: larry.stracke@gmail.com
++91 66 2165 6110: +91 44 6989 3961
 
 Full synthetic log:
-Ticket #12345 created by Rashi Patil (undefined) on 2023-01-15
-Contact: +91 48 8096 7973, Alternate: +91 84 4520 4092
+Ticket #12345 created by Rashi Patil (shawn42@gmail.com) on 2023-01-15
+Contact: +91 66 2165 6110, Alternate: +91 11 3956 5691
 Company: KSH International Limited, Mumbai
-8849 Kariane Stravenue, Sheilaworth, Missouri - 761078, India
-12078 Beatrice Wells, Bradhaven, Colorado - 489661, India
-Email chain: undefined, undefined, undefined
-Promoter: Kushal Subbayya Hegde, Pushpa Kushal Hegde, Leslie Gibson
-Company Secondary: O'Connell Group LLP, Koelpin and Sons Private Limited
-SSN: 458-80-1155 (US Citizen), 436-36-8475
-Credit Card: 3291-3176-4948-4912 (Visa test), 3749-0715-8126-9368 (Mastercard test), invalid should not redact: 1234-5678-9012-3456
-IP Address: 11.220.170.101 internal, 132.45.30.52 router, 184.33.95.246, 185.90.114.131 public DNS
-07/05/1967, 13/01/1999, Born on: Jan 5, 1978
+948 Woodside, Urbana, Minnesota - 985708, India
+90623 Lake Drive, Nienowshire, Georgia - 828857, India
+Email chain: brock.towne@hotmail.com, jonathan45@hotmail.com, erica94@gmail.com
+Promoter: Kushal Subbayya Hegde, Pushpa Kushal Hegde, Laurine Zemlak
+Company Secondary: Torp, Bergstrom and Oberbrunner LLP, Witting LLC LLP
+SSN: 747-07-2098 (US Citizen), 169-48-7802
+Credit Card: 8733-7540-5715-0903 (Visa test), 1612-5219-4973-2110 (Mastercard test), invalid should not redact: 1234-5678-9012-3456
+IP Address: 124.233.167.49 internal, 181.35.111.153 router, 110.140.101.63, 74.63.134.122 public DNS
+17/04/1978, 22/10/1990, Born on: Jan 5, 1978
 But generic date should NOT be redacted as DOB: Dated December 10, 2025, Offer Opens Dec 16, 2025
 
 Additional edge cases:
