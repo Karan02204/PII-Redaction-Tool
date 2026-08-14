@@ -523,6 +523,24 @@ function readactText(original) {
   };
 }
 
+async function createDocx(text, outPath) {
+  const paras = text.split("\n").map((l) => {
+    if (!l.trim()) return new Paragraph({ text: "" });
+    return new Paragraph({
+      children: [new TextRun({ text: l.slice(0, 1200), size: 20 })],
+      spacing: { after: 60 },
+    });
+  });
+  const doc = new Document({
+    sections: [{ children: paras }],
+    creator: "PII Redaction JS",
+    description: "Redacted RHP",
+  });
+  const buf = await Packer.toBuffer(doc);
+  fs.writeFileSync(outPath, buf);
+  console.log(`DOCX ${outPath} ${(buf.length / 1024).toFixed(1)}KB`);
+}
+
 function parseArgs() {
   const a = process.argv.slice(2);
   const r = {};
@@ -544,6 +562,19 @@ async function main() {
 
   const orig = fs.readFileSync(inPath, "utf-8");
   console.log(`Input ${orig.length} chars`);
+
+  const {redactedText , report , replacements } = readactText(orig);
+  console.log('Report', report);
+  console.log(
+    `Unique: names=${CACHE.names.size} emails=${CACHE.emails.size} phones=${CACHE.phones.size} companies=${CACHE.companies.size} addr=${CACHE.addresses.size}`,
+  );
+  fs.writeFileSync("data/output/redacted.txt", redactedText);
+  fs.writeFileSync(
+    "data/output/replacements.json",
+    JSON.stringify(replacements, null, 2),
+  );
+  await createDocx(redactedText, outPath);
+  console.table(replacements.slice(0, 25));
 }
 
 main().catch(console.error);
