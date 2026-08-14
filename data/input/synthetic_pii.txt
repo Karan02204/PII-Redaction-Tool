@@ -1,0 +1,32 @@
+PII Redaction - Synthetic Test File - Contains all 9 required types
+This file is used to prove coverage for types not present in real RHP
+
+Example from assignment:
+Rashi Patil: John Doe should become fake
+rashhi.patil@gmail.com: john.doe@example.com
+Rohan Dey: Peter Parker
+rohan.dey@gmail.com: peter.parker@example.com
++91 9876543210: +91 1234567645
+
+Full synthetic log:
+Ticket #12345 created by Rashi Patil (rashhi.patil@gmail.com) on 2023-01-15
+Contact: +91 9876543210, Alternate: +91 98765 43210
+Company: KSH International Limited, Mumbai
+Address: 11/3, 11/4 and 11/5 Village Birdewadi, Chakan Taluka - Khed Pune – 410 501 Maharashtra, India
+Office: 201, Tower 2, Montreal Business Centre, Off Pallod Farms, Baner Pune – 411 045
+Email chain: sarthak.malvadkar@kshinternational.com, ksh.ipo@nuvama.com, customerservice.mb@nuvama.com
+Promoter: Kushal Subbayya Hegde, Pushpa Kushal Hegde, Rajesh Kushal Hegde
+Company Secondary: Nuvama Wealth Management Limited, ICICI Securities Limited
+SSN: 123-45-6789 (US Citizen), 987-65-4321
+Credit Card: 4111-1111-1111-1111 (Visa test), 5500-0000-0000-0004 (Mastercard test), invalid should not redact: 1234-5678-9012-3456
+IP Address: 192.168.1.10 internal, 10.0.0.1 router, 172.16.0.5, 8.8.8.8 public DNS
+Date of Birth: Date of Birth: 15/08/1990, DOB: 22-11-1985, Born on: Jan 5, 1978
+But generic date should NOT be redacted as DOB: Dated December 10, 2025, Offer Opens Dec 16, 2025
+
+Additional edge cases:
+Order Number: ORDER-12345 should NOT be redacted (precision test)
+Ticket Number: TICKET-98765 should NOT be redacted
+CIN: U28129PN1979PLC141032 should NOT be redacted unless treated as sensitive (we choose NOT to)
+ISIN: INE123A12345 should NOT be redacted
+
+End of synthetic log.
