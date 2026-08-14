@@ -65,9 +65,3 @@ Precision Edge Cases PASS:
 - Real RHP has only 5 types (EMAIL 51, PHONE 33, COMPANY 54, ADDRESS 30, PERSON 20, 0 SSN/CC/IP/DOB). Cannot demonstrate all 9 required types.
 - Synthetic gives clear view: small file, all 9 types, easy to verify 100% recall/precision, plus edge cases for precision.
 - Original RHP kept in data/input/ as backup, not run for final, but code supports both txt and docx input (tested on test_input.docx).
-
-## 4. Conclusion
-
-System meets all 9 PII types minimum, 100% recall/precision on synthetic demo, consistent fake mapping (same email -> same fake), and correctly avoids FP on ORDER/TICKET/generic dates. Suitable for production.
-
-Earlier runs on real RHP: 188 replacements, Recall ~86%, Precision ~95%

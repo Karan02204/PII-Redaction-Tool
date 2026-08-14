@@ -3,13 +3,23 @@
 # Deployed URL: https://pii-redaction-tool-y8fk.onrender.com/
 
 ## Overview
-CLI + Web tool that redacts 9 PII types with consistent fake mapping (not [REDACTED]).
+CLI + Web tool that redacts 9 PII types with consistent fake mapping.
 
 Example: `Rashi Patil -> John Doe`, `rashhi.patil@gmail.com -> john.doe@example.com`, `+91 9876543210 -> +91 1234567645`
 
 Supports: Full names, Email, Phone, Company names, Physical addresses, SSN, Credit Card, DOB, IP.
 
 Live Demo: Deployed on Render/Vercel (see Deployment section) - supports txt & docx input, returns redacted docx.
+
+**Glossary (Important):**
+- TP=True Positive: PII correctly redacted
+- FN=False Negative: PII missed, still present (hurts Recall)
+- FP=False Positive: Non-PII incorrectly redacted (hurts Precision) e.g., ORDER-12345 flagged
+- TN=True Negative: Non-PII correctly left (~1500 tokens)
+- Recall=TP/(TP+FN) Did catch all PII?
+- Precision=TP/(TP+FP) Did avoid over-redacting?
+- Accuracy=(TP+TN)/total
+- F1=2PR/(P+R)
 
 ## Why Synthetic File for Final Demo?
 
@@ -19,6 +29,34 @@ Live Demo: Deployed on Render/Vercel (see Deployment section) - supports txt & d
 
 Final demo: `synthetic_pii.txt` (1727 chars) -> `redacted_synthetic.docx` (8.3KB, 29 replacements, 100% recall/precision on all 9 types).
 
+## Approach Details
+
+I used a **hybrid regex + NER model + third-party library approach** in JavaScript (chosen as language of choice for better code quality, as assignment allows any language).
+
+For **structured PII** (Email, Phone, IP, SSN, Credit Card, DOB) I used regex-based detection with validation: Email follows RFC pattern, Phone matches +91 and 10-digit, IP uses strict IPv4 0-255 validation, SSN is `\d{3}-\d{2}-\d{4}`, Credit Card uses `\d{4}[- ]{3}\d{4}` plus Luhn checksum to avoid false positives, DOB is contextual requiring keyword like DOB/Date of Birth/Born on plus year filter 1940-2005 so generic dates like "December 10, 2025" are not redacted.
+
+For **unstructured PII** (Full names, Company names, Addresses) I used NER model `compromise` (lightweight JS alternative to spaCy) for people and organizations, plus custom heuristics: Company detection via suffix regex (Limited/LLP/Inc/Private Limited), Address detection via keywords (Village/Taluka/Pune/Mumbai) + comma + number + PIN pattern (410501). To handle Indian names that compromise misclassifies (e.g., "Sarthak Malvadkar" as ORGANIZATION), I added Indian surname list (HEGDE/SHETTY/MALVADKAR) and a BUSINESS_STOP list of 70 business terms to filter non-persons.
+
+For **fake generation** I used third-party library `@faker-js/faker` with consistent mapping via `Map` cache: same original PII always maps to same fake (e.g., `ksh.ipo@nuvama.com` -> same fake everywhere), as required by assignment example. Order is most-specific-first (EMAIL, IP, SSN, CC, PHONE, DOB) then COMPANY/ADDRESS/PERSON longest-first to avoid overlaps. File handling uses `mammoth` for docx input and `docx` library for docx output.
+
+## Tradeoffs / False Positives / Negatives
+
+**Tradeoffs:**
+- Chose JavaScript over Python Presidio: Presidio gives higher recall out-of-box but heavy (500MB spaCy model) and opaque. JS hybrid is lightweight (200KB, <2 sec), transparent, easy to extend (add new PII type in 3 lines: PATTERNS + CACHE + fakeGen). Tradeoff: lower recall on Indian names vs transformer model, but better maintainability and meets assignment's code quality criteria.
+- Favored precision after achieving acceptable recall: v1 had high recall but many FP (272 DOB FP, 819 PERSON FP), v3 reduced to 29 replacements with high precision (100% on synthetic). Assignment values Recall but also says avoid redacting Order/Ticket numbers.
+
+**False Positives (Precision loss) - Fixed:**
+- DOB: v1 used generic date regex `\d{1,2}[/-]\d{1,2}[/-]\d{4}` which flagged every date like "Dated December 10, 2025" (offer date) as DOB -> 272 FP. Fixed by requiring contextual keyword DOB/Born + year filter. Now generic dates preserved (precision win).
+- PERSON: `compromise` flagged "Red Herring Prospectus", "Qualified Institutional Buyers", "Activities Responsibility Coordinator" as persons -> 819 FP. Fixed by BUSINESS_STOP list (70 business terms like Company, Limited, Offer, Prospectus, Village etc.) + title-case validation + month filter. Now PERSON 3 on synthetic, 20 on real doc, precision ~90-100%.
+- Email: Earlier missing `return f;` in replace callback caused `undefined: undefined` output -> fixed by adding return and fallback to ensure never undefined.
+
+**False Negatives (Recall loss) - Acknowledged:**
+- Real RHP: "KSH INTERNATIONAL LIMITED" all-caps with double spaces sometimes missed due to flexible space regex limitation, but 54 other company variants caught -> Company recall 80% on real doc.
+- "Sarthak Malvadkar" sometimes missed because compromise labels Indian name as ORGANIZATION not PERSON, fixed partially via surname list, 1-2 misses remain -> Person recall 63.6% real, 100% synthetic.
+- Short addresses without PIN/comma missed to keep precision high -> Address recall 66.7% real, 100% synthetic.
+- SSN/CC/IP/DOB are 0 in real RHP (expected public doc) -> proven 100% via synthetic file `synthetic_pii.txt`.
+- Explicit non-redactions (precision wins, as assignment says reasonable either way): ORDER-12345, TICKET-98765, CIN, ISIN correctly NOT redacted, proven in synthetic test.
+
 ## Input Files
 
 - `data/input/synthetic_pii.txt` - MAIN DEMO, all 9 types, clear verification
@@ -27,8 +65,8 @@ Final demo: `synthetic_pii.txt` (1727 chars) -> `redacted_synthetic.docx` (8.3KB
 
 ## Tech Stack - Why JS?
 
-- **Language choice:** Assignment says language of choice. Strong JS command -> better code quality/readability (graded). 
-- **Tradeoff vs Python Presidio:** Presidio gives higher recall out-of-box but heavy (500MB spaCy model), opaque. JS hybrid is lightweight (200KB, <2 sec for 366k chars), transparent: regex for structured PII (email, phone, IP, SSN, CC with Luhn validation) + compromise NER for unstructured (person, company) + heuristic for address + BUSINESS_STOP filter (70 words) to fix FP.
+- **Language choice:** Better code quality/readability. 
+- **Tradeoff vs Python Presidio:** Presidio gives higher recall out-of-box but heavy (500MB spaCy model), opaque. JS hybrid is lightweight (200KB, <2 sec for 366k chars), transparent: regex for structured PII (email, phone, IP, SSN, CC with Luhn validation) + compromise NER for unstructured (person, company) + heuristic for address + BUSINESS_STOP filter (70 words) to fix False Positive(FP).
 - **Libraries:** `@faker-js/faker` for fake data with consistent Map cache, `compromise` for NER, `docx` for output docx, `mammoth` for docx input, `express` for web deployment.
 - **Consistent mapping:** `CACHE` Maps per type, `getFake(map, original, gen)` ensures same original -> same fake every time.
 
@@ -96,60 +134,7 @@ If you pasted `pii-redaction-web` folder inside same repo as CLI (like `your-rep
   - Build: `cd pii-redaction-web && npm install`
   - Start: `cd pii-redaction-web && node server.js`
 
-## Approach Details
-
-1. **Order:** EMAIL, IP, SSN, CC (Luhn), PHONE, DOB contextual, COMPANY longest-first, ADDRESS longest-first, PERSON longest-first + uppercase promoter handling.
-
-2. **Bug fixed:** Earlier email replace was missing `return f;` causing `undefined: undefined` in output. Fixed by adding return + fallback in getFake to never return undefined.
-
-3. **Docx support added (15 lines):** Added mammoth dependency and readInputFile():
-   ```js
-   if (inPath.endsWith('.docx')) { 
-     const mammoth = await import('mammoth');
-     const result = await mammoth.extractRawText({path: inPath});
-     return result.value;
-   } else { return fs.readFileSync(inPath, 'utf-8'); }
-   ```
-
-4. **Precision tuning v1->v3:** v1 1378 replacements (272 DOB FP, 819 PERSON FP) -> v3 29 synthetic / 188 real. DOB generic dates preserved, PERSON filtered via BUSINESS_STOP (70 words).
-
-## Tradeoffs / False Positives / Negatives
-
-**FP Fixed:**
-- DOB generic dates like Dec 10 2025 were redacted as DOB in v1 -> 272 FP. Fixed by requiring keyword DOB/Born + year filter.
-- PERSON "Red Herring Prospectus", "Activities Responsibility Coordinator" flagged as person -> fixed via BUSINESS_STOP list, now PERSON 20, precision ~90%.
-
-**FN Acknowledged:**
-- KSH INTERNATIONAL LIMITED all-caps double-space sometimes missed (flexible regex limitation) but 54 other company variants caught.
-- Sarthak Malvadkar missed sometimes because compromise tags Indian name as ORGANIZATION, fixed partially via surname list.
-- SSN/CC/IP/DOB 0 in real RHP (expected public doc) - proven 100% via synthetic.
-- ORDER-12345, TICKET-98765, CIN, ISIN correctly NOT redacted (explicit choice, assignment says reasonable either way).
-
 **Why synthetic for demo:** Real doc lacks 4 types, synthetic gives clear view of all 9.
-
-## Evaluation
-
-**Approach:** No ground truth provided. Created manual gold: 29 entities from synthetic covering all 9 types (plus 32 real from RHP kept as backup). For each gold: present in original AND absent in redacted = TP, present in both = FN, non-PII flagged = FP.
-
-**Glossary (Important):**
-- TP=True Positive: PII correctly redacted
-- FN=False Negative: PII missed, still present (hurts Recall)
-- FP=False Positive: Non-PII incorrectly redacted (hurts Precision) e.g., ORDER-12345 flagged
-- TN=True Negative: Non-PII correctly left (~1500 tokens)
-- Recall=TP/(TP+FN) Did catch all PII?
-- Precision=TP/(TP+FP) Did avoid over-redacting?
-- Accuracy=(TP+TN)/total
-- F1=2PR/(P+R)
-
-**Results:**
-- Input 1727 chars, Output 8.3KB, 29 replacements: EMAIL 8, IP 4, SSN 2, CC 2, PHONE 4, DOB 2, COMPANY 2, ADDRESS 2, PERSON 3
-- TP=29, FN=0, FP=0, TN~1500
-- **Recall=100%, Precision=100%, Accuracy=100%, F1=100%**
-- Per-type all 100%, plus edge cases ORDER/TICKET preserved PASS, invalid CC 1234-... NOT redacted PASS
-
-**Real RHP :** 188 replacements, Recall ~86%, Precision ~95%
-
-See `evaluation/Evaluation_report.docx` (has glossary) and `Evaluation_report.md`.
 
 ## File Structure
 

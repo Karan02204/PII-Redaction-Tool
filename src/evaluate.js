@@ -23,8 +23,8 @@ const gold = [
 ];
 
 function main() {
-  const original = fs.existsSync("data/input/original.txt")
-    ? fs.readFileSync("data/input/original.txt", "utf-8")
+  const original = fs.existsSync("data/input/synthetic_pii.txt")
+    ? fs.readFileSync("data/input/synthetic_pii.txt", "utf-8")
     : "";
   const redacted = fs.existsSync("data/output/redacted.txt")
     ? fs.readFileSync("data/output/redacted.txt", "utf-8")
