@@ -179,10 +179,3 @@ PII-REDACTION-TOOL/
   package-lock.json
   README.md
 ```
-
-## Submission Checklist
-- [x] Source: src/redactor.js (fixed undefined bug: added return f in email replace + fallback)
-- [x] Redacted: redacted_output.docx (from synthetic - clear 9 types, 0 undefined)
-- [x] README: explains why synthetic used, original kept as backup, approach, tradeoffs, deployment root directory note
-- [x] Evaluation: evaluation/Evaluation_report.docx with Recall/Precision/Accuracy + glossary
-- [x] Web deployable: pii-redaction-web/ for Vercel/Netlify/Render/Railway field
