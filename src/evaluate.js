@@ -1,6 +1,6 @@
 /**
  * Run: node src/evaluate.js
- * Generates: evaluation/evaluation_report.md
+ * Generates: evaluation/Evaluation_report.md
  */
 import fs from "fs";
 
@@ -61,7 +61,7 @@ F1=${(f1 * 100).toFixed(2)}%
 
   console.log(report);
   fs.writeFileSync(
-    "evaluation/evaluation_report.md",
+    "evaluation/Evaluation_report.md",
     `# Evaluation Report
 
 ## Approach
@@ -71,6 +71,6 @@ Manual gold of ${totalGold} entities. TP=removed, FN=still present. FP heuristic
 ${report}
 `,
   );
-  console.log("Written to evaluation/evaluation_report.md");
+  console.log("Written to evaluation/Evaluation_report.md");
 }
 main();
