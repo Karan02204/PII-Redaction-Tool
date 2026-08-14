@@ -268,6 +268,63 @@ const BUSINESS_STOP = new Set([
   "Centre",
 ]);
 
+function isValidPerson(name) {
+  const t = name.trim().replace(/\s+/g, " ");
+  if (t.length < 6 || t.length > 60) return false;
+  const words = t.split(" ");
+  if (words.length < 2 || words.length > 4) return false;
+  // reject if any word is business/month
+  for (let w of words) {
+    const clean = w.replace(/[^A-Za-z]/g, "");
+    if (!clean) return false;
+    if (BUSINESS_STOP.has(clean)) return false;
+    if (MONTHS.has(clean)) return false;
+    if (clean.length < 3) return false; // avoid initials
+    if (clean.length > 20) return false;
+    // must be capitalized properly
+    if (!/^[A-Z][a-z]+$/.test(clean) && !/^[A-Z]+$/.test(clean)) return false;
+    if (/^[A-Z]+$/.test(clean) && clean.length <= 2) return false;
+  }
+  // must have at least 2 title-case words
+  const titleCase = words.filter((w) => /^[A-Z][a-z]+$/.test(w)).length;
+  if (titleCase < 2) return false;
+  // reject if contains digits or symbols
+  if (/\d/.test(t) || /[●®©]/.test(t)) return false;
+  return true;
+}
+
+function extractNames(text) {
+  // Use compromise only, plus manually curated promoter names from doc
+  const doc = nlp(text);
+  let people = doc.people().out("array");
+  // Add known promoter pattern: uppercase 2-3 words that are near "PROMOTER" or "HEGDE" "SHETTY"
+  const upperPromoters = [
+    ...text.matchAll(
+      /\b(?:[A-Z]{2,}\s+){1,2}(?:HEGDE|SHETTY|MALVADKAR|SHAH|SARKAR|RASTOGI|DIWAN|GOPALKRISHNAN|BORICHA|PARAB)\b/g,
+    ),
+  ].map((m) => m[0]);
+  // Convert to title case
+  const titlePromoters = upperPromoters.map((n) =>
+    n
+      .split(" ")
+      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+      .join(" "),
+  );
+  const combined = [...new Set([...people, ...titlePromoters])];
+  const filtered = combined.filter(isValidPerson);
+  // Deduplicate case-insensitively, keep longest
+  const seen = new Set();
+  const result = [];
+  filtered.sort((a, b) => b.length - a.length);
+  for (let n of filtered) {
+    const low = n.toLowerCase();
+    if (seen.has(low)) continue;
+    seen.add(low);
+    result.push(n);
+  }
+  return result;
+}
+
 function extractCompanies(text) {
   const pattern =
     /\b[A-Z][A-Za-z0-9& ]{3,60}?\s+(?:International\s+Limited|Wealth Management Limited|Securities Limited|Private Limited|Limited|Ltd|LLP|Inc|Corporation)\b/g;
@@ -429,6 +486,41 @@ function readactText(original) {
     } catch (e) {}
   }
 
+  // 9 PERSON
+  const names = extractNames(original);
+  names.sort((a, b) => b.length - a.length);
+  for (const n of names) {
+    // Title case version
+    const f = getFake(CACHE.names, n, fakeGen.name);
+    const esc = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`\\b${esc}\\b`, "g");
+    if (re.test(text)) {
+      text = text.replace(re, f);
+      repl.push({ type: "PERSON", original: n, fake: f });
+    }
+    // Also uppercase version
+    const upper = n.toUpperCase();
+    if (original.includes(upper)) {
+      const fUpper = f.toUpperCase();
+      const escUpper = upper.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const reUp = new RegExp(`\\b${escUpper}\\b`, "g");
+      text = text.replace(reUp, fUpper);
+      // avoid duplicate push if already counted
+      if (!repl.find((r) => r.original === upper)) {
+        repl.push({ type: "PERSON", original: upper, fake: fUpper });
+      }
+    }
+  }
+
+  const byType = repl.reduce((acc, r) => {
+    acc[r.type] = (acc[r.type] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    redactedText: text,
+    report: { total: repl.length, byType },
+    replacements: repl,
+  };
 }
 
 function parseArgs() {
