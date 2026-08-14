@@ -6,6 +6,7 @@ import fs from "fs";
 import nlp from "compromise";
 import { faker } from "@faker-js/faker";
 import { Document, Packer, Paragraph, TextRun } from "docx";
+import { parseArgs } from "util";
 
 const CACHE = {
   names: new Map(),
@@ -62,8 +63,7 @@ const PATTERNS = {
 function luhnCheck(s) {
   const d = s.replace(/\D/g, "");
   if (d.length < 13 || d.length > 19) return false;
-  let sum = 0,
-    dbl = false;
+  let sum = 0, dbl = false;
   for (let i = d.length - 1; i >= 0; i--) {
     let v = parseInt(d[i]);
     if (dbl) {
@@ -75,3 +75,30 @@ function luhnCheck(s) {
   }
   return sum % 10 === 0;
 }
+
+function parseArgs(){
+    const a = process.argv.slice(2);
+    const r = {};
+    for(let i=0;i<a.length;i++){
+        if(a[i] === '--input'){
+            r.input = a[i+1];
+        }
+    }
+
+    return r;
+}
+
+async function main(){
+    const {input , output} = parseArgs();
+    const inPath = input;
+    const outPath = output;
+    if(!fs.existsSync(inPath)){
+        console.error("Input missing " + inPath);
+        process.exit(1);
+    }
+
+    const orig = fs.readFileSync(inPath , 'utf-8');
+    console.log(`Input ${orig.length} chars`);
+}
+
+main().catch(console.error);
