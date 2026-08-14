@@ -1,0 +1,29 @@
+{
+  "name": "pii-redaction-tool",
+  "version": "1.0.0",
+  "description": "PII Redaction Tool",
+  "main": "src/redactor.js",
+  "scripts": {
+    "start": "node src/redactor.js --input data/input/original.txt --output data/output/redacted.docx",
+    "redact": "node src/redactor.js",
+    "evaluate": "node src/evaluate.js",
+    "test": "node src/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karan02204/PII-Redaction-Tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Karan02204/PII-Redaction-Tool/issues"
+  },
+  "homepage": "https://github.com/Karan02204/PII-Redaction-Tool#readme",
+  "dependencies": {
+    "@faker-js/faker": "^10.5.0",
+    "compromise": "^14.16.0",
+    "docx": "^9.7.1"
+  }
+}
