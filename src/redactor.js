@@ -6,7 +6,6 @@ import fs from "fs";
 import nlp from "compromise";
 import { faker } from "@faker-js/faker";
 import { Document, Packer, Paragraph, TextRun } from "docx";
-import { parseArgs } from "util";
 
 const CACHE = {
   names: new Map(),
@@ -63,7 +62,8 @@ const PATTERNS = {
 function luhnCheck(s) {
   const d = s.replace(/\D/g, "");
   if (d.length < 13 || d.length > 19) return false;
-  let sum = 0, dbl = false;
+  let sum = 0,
+    dbl = false;
   for (let i = d.length - 1; i >= 0; i--) {
     let v = parseInt(d[i]);
     if (dbl) {
@@ -76,6 +76,74 @@ function luhnCheck(s) {
   return sum % 10 === 0;
 }
 
+function extractDOBs(text) {
+  const results = [];
+  const regex =
+    /(?:DOB|Date of Birth|Birth Date|Born on)[^0-9\n]{0,30}(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    const y = m[1].match(/(19\d{2}|20[0-2]\d)/);
+    if (y) {
+      const yr = parseInt(y[1]);
+      if (yr >= 1940 && yr <= 2005) results.push(m[0]);
+    }
+  }
+  return [...new Set(results)];
+}
+
+function readactText(original) {
+  let text = original;
+  const repl = [];
+
+  // 1 Email
+  text = text.replace(PATTERNS.email, (m) => {
+    const f = getFake(CACHE.emails, m, fakeGen.email);
+    repl.push({ type: "EMAIL", original: m, fake: f });
+  });
+
+  // 2 IP
+  text = text.replace(PATTERNS.ip, (m) => {
+    const f = getFake(CACHE.ips, m, fakeGen.ip);
+    repl.push({ type: "IP_ADDRESS", original: m, fake: f });
+    return f;
+  });
+
+  // 3 SSN
+  text = text.replace(PATTERNS.ssn, (m) => {
+    const f = getFake(CACHE.ssns, m, fakeGen.ssn);
+    repl.push({ type: "SSN", original: m, fake: f });
+    return f;
+  });
+
+  // 4 CREDIT CARD
+  text = text.replace(PATTERNS.creditCard, (m) => {
+    if (!luhnCheck(m)) return m;
+    const f = getFake(CACHE.creditCards, m, fakeGen.creditCard);
+    repl.push({ type: "CREDIT_CARD", original: m, fake: f });
+    return f;
+  });
+
+  // 5 PHONE
+  text = text.replace(PATTERNS.phone, (m) => {
+    const digits = m.replace(/\D/g, "");
+    if (digits.length < 10 || digits.length > 13) return m;
+    if (/^\d{6}$/.test(digits)) return m; // PIN
+    const cleaned = m.replace(/\s+/g, " ").trim().slice(0, 50);
+    const f = getFake(CACHE.phones, cleaned, () => fakeGen.phone(cleaned));
+    repl.push({ type: "PHONE", original: cleaned, fake: f });
+    return f;
+  });
+
+  // 6 DOB contextual
+  const dobs = extractDOBs(original);
+  for (const d of dobs) {
+    const esc = d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const f = getFake(CACHE.dobs, d, fakeGen.dob);
+    text = text.replace(new RegExp(esc, "g"), f);
+    repl.push({ type: "DOB", original: d, fake: f });
+  }
+}
+
 function parseArgs() {
   const a = process.argv.slice(2);
   const r = {};
@@ -86,17 +154,17 @@ function parseArgs() {
   return r;
 }
 
-async function main(){
-    const {input , output} = parseArgs();
-    const inPath = input;
-    const outPath = output;
-    if(!fs.existsSync(inPath)){
-        console.error("Input missing " + inPath);
-        process.exit(1);
-    }
+async function main() {
+  const { input, output } = parseArgs();
+  const inPath = input;
+  const outPath = output;
+  if (!fs.existsSync(inPath)) {
+    console.error("Input missing " + inPath);
+    process.exit(1);
+  }
 
-    const orig = fs.readFileSync(inPath , 'utf-8');
-    console.log(`Input ${orig.length} chars`);
+  const orig = fs.readFileSync(inPath, "utf-8");
+  console.log(`Input ${orig.length} chars`);
 }
 
 main().catch(console.error);
