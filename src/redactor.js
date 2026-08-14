@@ -76,6 +76,250 @@ function luhnCheck(s) {
   return sum % 10 === 0;
 }
 
+const MONTHS = new Set([
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+]);
+const BUSINESS_STOP = new Set([
+  "Act",
+  "Regulation",
+  "Regulations",
+  "Board",
+  "Company",
+  "Companies",
+  "Limited",
+  "Private",
+  "Offer",
+  "Prospectus",
+  "Red",
+  "Herring",
+  "Book",
+  "Built",
+  "Stock",
+  "Exchange",
+  "Securities",
+  "Capital",
+  "Structure",
+  "Risk",
+  "Factors",
+  "Financial",
+  "Information",
+  "Material",
+  "Contracts",
+  "Corporate",
+  "Identity",
+  "Number",
+  "Office",
+  "Contact",
+  "Person",
+  "Telephone",
+  "Website",
+  "Village",
+  "Taluka",
+  "District",
+  "Pune",
+  "Mumbai",
+  "Maharashtra",
+  "India",
+  "Promoter",
+  "Promoters",
+  "Selling",
+  "Shareholder",
+  "Trust",
+  "Family",
+  "Management",
+  "Participants",
+  "Depository",
+  "Infrastructure",
+  "Pipeline",
+  "Surveillance",
+  "Measure",
+  "Designated",
+  "Intermediaries",
+  "Syndicate",
+  "Members",
+  "Systemically",
+  "Hospital",
+  "Institutional",
+  "Buyers",
+  "Qualified",
+  "Chartered",
+  "Engineer",
+  "Borrower",
+  "Fraudulent",
+  "Mechanism",
+  "Redressal",
+  "Complaints",
+  "Registrar",
+  "Agreement",
+  "Circulars",
+  "Locations",
+  "Specified",
+  "Allotment",
+  "Identification",
+  "Director",
+  "Economic",
+  "Fugitive",
+  "Central",
+  "Electricity",
+  "Regulatory",
+  "Monetization",
+  "National",
+  "Purchase",
+  "Renewable",
+  "Obligations",
+  "Payment",
+  "Directors",
+  "Independent",
+  "Activities",
+  "Responsibility",
+  "Coordinator",
+  "Application",
+  "Supported",
+  "Fund",
+  "Issue",
+  "Documents",
+  "Inspection",
+  "General",
+  "Summary",
+  "Objects",
+  "Basis",
+  "Price",
+  "Industry",
+  "Overview",
+  "Business",
+  "History",
+  "Key",
+  "Policies",
+  "Statement",
+  "Benefits",
+  "Tax",
+  "Provisions",
+  "Articles",
+  "Association",
+  "SEBI",
+  "BSE",
+  "NSE",
+  "ICDR",
+  "UPI",
+  "BRLM",
+  "KSH",
+  "INTERNATIONAL",
+  "LIMITED",
+  "WEBSITE",
+  "TELEPHONE",
+  "EMAIL",
+  "MAIL",
+  "Dated",
+  "Please",
+  "Read",
+  "Section",
+  "Built",
+  "Type",
+  "Size",
+  "Fresh",
+  "Sale",
+  "Total",
+  "Eligibility",
+  "Reservation",
+  "Among",
+  "QIBs",
+  "NIIs",
+  "RIIs",
+  "Equity",
+  "Shares",
+  "Face",
+  "Value",
+  "Million",
+  "Regulation",
+  "Public",
+  "Details",
+  "Offer",
+  "For",
+  "And",
+  "The",
+  "Our",
+  "Inc",
+  "Ltd",
+  "Tower",
+  "Centre",
+  "Business",
+  "Centre",
+]);
+
+function extractCompanies(text) {
+  const pattern =
+    /\b[A-Z][A-Za-z0-9& ]{3,60}?\s+(?:International\s+Limited|Wealth Management Limited|Securities Limited|Private Limited|Limited|Ltd|LLP|Inc|Corporation)\b/g;
+  const raw = [...text.matchAll(pattern)]
+    .map((m) => m[0].replace(/\s+/g, " ").trim())
+    .filter((m) => m.length > 10 && m.length < 80);
+  // Filter out those that are actually person names or generic
+  const filtered = raw.filter((c) => {
+    if (BUSINESS_STOP.has(c.split(" ")[0])) return false;
+    if (
+      c.includes("Book Built") ||
+      c.includes("Red Herring") ||
+      c.includes("Offer")
+    )
+      return false;
+    return true;
+  });
+  return [...new Set(filtered)];
+}
+
+function extractAddresses(text) {
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length >= 20 && l.length <= 250);
+  const addr = [];
+  for (let line of lines) {
+    if (line.includes("@")) continue;
+    const hasVillage =
+      /(Village|Taluka|Birdewadi|Chakan|Pune|Mumbai|Maharashtra|Bandra|Kurla|Vikhroli|Baner|Business Centre|Tower|Floor|Building)/i.test(
+        line,
+      );
+    const hasNum = /\d/.test(line);
+    const hasComma = line.includes(",");
+    const isAddressLike =
+      hasVillage && hasNum && hasComma && line.split(" ").length >= 5;
+    if (isAddressLike) {
+      // Exclude if it's just phone/email line
+      if (!/^(Email|Telephone|Website)/i.test(line)) {
+        addr.push(line);
+      }
+    }
+  }
+  // PIN block
+  const pinBlocks = [
+    ...text.matchAll(
+      /[A-Za-z0-9\/,\- ]{20,150}\b(?:410\s*501|411\s*045|400\s*051|400\s*025|400\s*083|400\s*042|400\s*020)\b[^\n]{0,30}/g,
+    ),
+  ].map((m) => m[0].trim());
+  return [...new Set([...addr, ...pinBlocks])].slice(0, 30);
+}
+
 function extractDOBs(text) {
   const results = [];
   const regex =
@@ -89,6 +333,11 @@ function extractDOBs(text) {
     }
   }
   return [...new Set(results)];
+}
+
+function makeFlexibleRegex(str) {
+  const esc = str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(esc.replace(/\\\s+/g, "\\s+").replace(/\s+/g, "\\s+"), "g");
 }
 
 function readactText(original) {
@@ -142,6 +391,44 @@ function readactText(original) {
     text = text.replace(new RegExp(esc, "g"), f);
     repl.push({ type: "DOB", original: d, fake: f });
   }
+
+  // 7 COMPANY
+  const comps = extractCompanies(original);
+  comps.sort((a, b) => b.length - a.length);
+  for (const c of comps) {
+    if (!text.includes(c.split(" ")[0])) continue; // rough check
+    // flexible space match
+    try {
+      const re = makeFlexibleRegex(c);
+      if (re.test(text)) {
+        const f = getFake(CACHE.companies, c, fakeGen.company);
+        text = text.replace(re, f);
+        repl.push({ type: "COMPANY", original: c, fake: f });
+      }
+    } catch (e) {}
+  }
+
+  // 8 ADDRESS
+  const addrs = extractAddresses(original);
+  addrs.sort((a, b) => b.length - a.length);
+  for (const a of addrs) {
+    if (a.length < 15) continue;
+    if (!original.includes(a.substring(0, 20))) continue;
+    const f = getFake(CACHE.addresses, a, fakeGen.address);
+    const esc = a
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/\s+/g, "\\s+");
+    try {
+      const re = new RegExp(esc, "g");
+      text = text.replace(re, f);
+      repl.push({
+        type: "ADDRESS",
+        original: a.slice(0, 80),
+        fake: f.slice(0, 80),
+      });
+    } catch (e) {}
+  }
+
 }
 
 function parseArgs() {
